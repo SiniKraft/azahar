@@ -7,6 +7,9 @@
 #ifdef ENABLE_QT
 #include "citra_qt/citra_qt.h"
 #endif
+#ifdef ENABLE_ROOM
+#include "citra_room/citra_room.h"
+#endif
 #ifdef ENABLE_SDL2_FRONTEND
 #include "citra_sdl/citra_sdl.h"
 #endif
@@ -19,6 +22,20 @@ __declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
 #endif
 
 int main(int argc, char* argv[]) {
+#if ENABLE_ROOM
+    bool launch_room = false;
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--room") == 0) {
+            launch_room = true;
+        }
+    }
+
+    if (launch_room) {
+        LaunchRoom(argc, argv);
+        return 0;
+    }
+#endif
+
 #if ENABLE_QT
     bool no_gui = false;
     for (int i = 1; i < argc; i++) {
