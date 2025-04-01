@@ -135,7 +135,7 @@ else()
         # GCC may warn when it ignores attributes like maybe_unused,
         # which is a problem for older versions (e.g. GCC 11).
         add_compile_options("-Wno-attributes")
-        add_compile_options("-Wno-interference-size")
+        add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-interference-size>)
     endif()
 
     if (MINGW)
@@ -197,6 +197,10 @@ endif()
 
 if (ENABLE_ROOM)
     add_subdirectory(citra_room)
+endif()
+
+if (ENABLE_ROOM_LAUNCHER)
+    add_subdirectory(citra_room_launcher)
 endif()
 
 if (ANDROID)
