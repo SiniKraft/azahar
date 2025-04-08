@@ -715,7 +715,7 @@ void GRenderWindow::CaptureScreenshot(u32 res_scale, const QString& screenshot_p
         screenshot_image.bits(),
         [this, screenshot_path](bool invert_y) {
             const std::string std_screenshot_path = screenshot_path.toStdString();
-            if (GetMirroredImage(screenshot_image, false, invert_y).save(screenshot_path)) {
+            if (GetMirroredImage(screenshot_image, true, true).save(screenshot_path)) {
                 LOG_INFO(Frontend, "Screenshot saved to \"{}\"", std_screenshot_path);
             } else {
                 LOG_ERROR(Frontend, "Failed to save screenshot to \"{}\"", std_screenshot_path);
