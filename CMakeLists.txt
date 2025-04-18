@@ -12,6 +12,27 @@ cmake_policy(SET CMP0063 NEW)
 cmake_policy(SET CMP0127 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0063 NEW)
 
+if (APPLE)
+    # Silence warnings on empty objects, for example when platform-specific code is #ifdef'd out.
+    set(CMAKE_C_ARCHIVE_CREATE "<CMAKE_AR> Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
+    set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
+    set(CMAKE_C_ARCHIVE_FINISH "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
+    set(CMAKE_CXX_ARCHIVE_FINISH "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
+
+    if (IOS)
+        # Minimum iOS 14
+        set(ENV{MACOSX_DEPLOYMENT_TARGET} "14.0")
+
+        # Enable searching CMAKE_PREFIX_PATH for bundled dependencies.
+        set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
+        set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
+        set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
+    else()
+        # Minimum macOS 13
+        set(ENV{MACOSX_DEPLOYMENT_TARGET} "13.0")
+    endif()
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/externals/cmake-modules")
 include(DownloadExternals)
@@ -23,27 +44,6 @@ project(citra LANGUAGES C CXX ASM)
 # Make sure we default to Release build type always, unless the generator has custom types.
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
-endif()
-
-if (APPLE)
-    # Silence warnings on empty objects, for example when platform-specific code is #ifdef'd out.
-    set(CMAKE_C_ARCHIVE_CREATE "<CMAKE_AR> Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
-    set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
-    set(CMAKE_C_ARCHIVE_FINISH "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
-    set(CMAKE_CXX_ARCHIVE_FINISH "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
-
-    if (IOS)
-        # Minimum iOS 14
-        set(CMAKE_OSX_DEPLOYMENT_TARGET "14.0")
-
-        # Enable searching CMAKE_PREFIX_PATH for bundled dependencies.
-        set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
-        set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
-        set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
-    else()
-        # Minimum macOS 13
-        set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0")
-    endif()
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
