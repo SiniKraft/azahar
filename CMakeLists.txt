@@ -19,17 +19,6 @@ include(DownloadExternals)
 include(CMakeDependentOption)
 include(FindPkgConfig)
 
-project(citra LANGUAGES C CXX ASM)
-if (CMAKE_SYSTEM_NAME STREQUAL "Darwin" OR CMAKE_SYSTEM_NAME STREQUAL "iOS")
-    enable_language(OBJC OBJCXX)
-endif()
-
-# Some submodules like to pick their own default build type if not specified.
-# Make sure we default to Release build type always, unless the generator has custom types.
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
-endif()
-
 if (APPLE)
     # Silence warnings on empty objects, for example when platform-specific code is #ifdef'd out.
     set(CMAKE_C_ARCHIVE_CREATE "<CMAKE_AR> Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
@@ -39,7 +28,7 @@ if (APPLE)
 
     if (IOS)
         # Minimum iOS 14
-        set(CMAKE_OSX_DEPLOYMENT_TARGET "14.0")
+        set(CMAKE_OSX_DEPLOYMENT_TARGET "14.0" CACHE STRING "Minimum iOS version")
 
         # Enable searching CMAKE_PREFIX_PATH for bundled dependencies.
         set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
@@ -47,8 +36,19 @@ if (APPLE)
         set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
     else()
         # Minimum macOS 13
-        set(CMAKE_OSX_DEPLOYMENT_TARGET "13.4")
+        set(CMAKE_OSX_DEPLOYMENT_TARGET "13.4" CACHE STRING "Minimum macOS version")
     endif()
+endif()
+
+project(citra LANGUAGES C CXX ASM)
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin" OR CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    enable_language(OBJC OBJCXX)
+endif()
+
+# Some submodules like to pick their own default build type if not specified.
+# Make sure we default to Release build type always, unless the generator has custom types.
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)

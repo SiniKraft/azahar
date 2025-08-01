@@ -69,6 +69,7 @@ jobs:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       CCACHE_COMPILERCHECK: content
       CCACHE_SLOPPINESS: time_macros
+      MACOSX_DEPLOYMENT_TARGET: "13.4"
       OS: macos
       TARGET: ${{ matrix.target }}
     steps:
