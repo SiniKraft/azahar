@@ -289,6 +289,16 @@
           </property>
         </widget>
       </item>
+      <item row="4" column="0">
+        <widget class="QCheckBox" name="show_developer_options">
+          <property name="text">
+            <string>Show developer options</string>
+          </property>
+          <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Shows options intended for use by developers of the emulator.&lt;br/&gt;These options are useless for the average user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+        </widget>
+      </item>
      </layout>
     </widget>
    </item>

@@ -109,6 +109,7 @@ void ConfigureDebug::SetConfiguration() {
 #ifndef ENABLE_SCRIPTING
     ui->enable_rpc_server->setVisible(false);
 #endif // !ENABLE_SCRIPTING
+    ui->show_developer_options->setChecked(Settings::values.show_developer_options.GetValue());
 
     ui->toggle_renderer_debug->setChecked(Settings::values.renderer_debug.GetValue());
     ui->toggle_dump_command_buffers->setChecked(Settings::values.dump_command_buffers.GetValue());
@@ -148,6 +149,7 @@ void ConfigureDebug::ApplyConfiguration() {
     Settings::values.deterministic_async_operations =
         ui->deterministic_async_operations->isChecked();
     Settings::values.enable_rpc_server = ui->enable_rpc_server->isChecked();
+    Settings::values.show_developer_options = ui->show_developer_options->isChecked();
     Settings::values.renderer_debug = ui->toggle_renderer_debug->isChecked();
     Settings::values.dump_command_buffers = ui->toggle_dump_command_buffers->isChecked();
     Settings::values.instant_debug_log = ui->instant_debug_log->isChecked();

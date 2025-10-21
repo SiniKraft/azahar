@@ -644,8 +644,11 @@ void GameList::AddGamePopup(QMenu& context_menu, const QString& path, const QStr
         shortcut_menu->addAction(tr("Add to Applications Menu"));
 #endif
 
-    context_menu.addSeparator();
-    QAction* stress_test_launch = context_menu.addAction(tr("Stress Test: Launch (Debug)"));
+    QAction* stress_test_launch = nullptr;
+    if (Settings::values.show_developer_options) {
+        context_menu.addSeparator();
+        stress_test_launch = context_menu.addAction(tr("Stress Test: Launch"));
+    }
 
     context_menu.addSeparator();
     QAction* properties = context_menu.addAction(tr("Properties"));
@@ -758,8 +761,10 @@ void GameList::AddGamePopup(QMenu& context_menu, const QString& path, const QStr
             [this, path, program_id] { emit DumpRomFSRequested(path, program_id); });
     connect(remove_play_time_data, &QAction::triggered,
             [this, program_id]() { emit RemovePlayTimeRequested(program_id); });
-    connect(stress_test_launch, &QAction::triggered,
-            [this, path]() { emit StartingLaunchStressTest(path); });
+    if (Settings::values.show_developer_options) {
+        connect(stress_test_launch, &QAction::triggered,
+                [this, path]() { emit StartingLaunchStressTest(path); });
+    }
     connect(properties, &QAction::triggered, this,
             [this, path]() { emit OpenPerGameGeneralRequested(path); });
     connect(open_shader_cache_location, &QAction::triggered, this, [this, program_id] {
