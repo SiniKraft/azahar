@@ -251,10 +251,23 @@ elseif (BUNDLE_TARGET_DOWNLOAD_LINUXDEPLOY)
             get_filename_component(executable_ext "${executable_file}" LAST_EXT)
             if (executable_ext STREQUAL ".AppImage")
                 message(STATUS "Extracting ${executable_name}")
-                execute_process(
-                    COMMAND "${executable_file}" --appimage-extract
-                    WORKING_DIRECTORY "${base_dir}"
-                    RESULT_VARIABLE extract_result)
+                set(extract_result "UNSET")
+                find_program(sevenzip_exists 7z)
+
+                if(sevenzip_exists)
+                    message(STATUS "7z can be used, using extra compatible AppImage extraction method")
+                    execute_process(
+                        COMMAND 7z x -y -snld ${executable_file} -osquashfs-root
+                        WORKING_DIRECTORY "${base_dir}"
+                        RESULT_VARIABLE extract_result)
+                else()
+                    message(STATUS "7z is unavailable, using default AppImage extraction method")
+                    execute_process(
+                        COMMAND "${executable_file}" --appimage-extract
+                        WORKING_DIRECTORY "${base_dir}"
+                        RESULT_VARIABLE extract_result)
+                endif()
+
                 if (NOT extract_result EQUAL "0")
                     message(FATAL_ERROR "AppImage extract failed: ${extract_result}")
                 endif()
