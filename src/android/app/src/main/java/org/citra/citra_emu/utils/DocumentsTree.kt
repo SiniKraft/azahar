@@ -220,6 +220,7 @@ class DocumentsTree {
         try {
             val newUri = DocumentsContract.moveDocument(context.contentResolver, sourceFileNode.uri!!, sourceDirNode.uri!!, destDirNode.uri!!)
             sourceFileNode.rename(filename, newUri)
+            destDirNode.addChild(sourceFileNode)
             return true
         } catch (e: Exception) {
             error("[DocumentsTree]: Cannot move file, error: " + e.message)

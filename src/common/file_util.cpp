@@ -311,6 +311,7 @@ bool Rename(const std::string& srcFullPath, const std::string& destFullPath) {
                  Common::UTF8ToUTF16W(destFullPath).c_str()) == 0)
         return true;
 #elif ANDROID
+    LOG_INFO(Common_Filesystem, "About to move {} --> {}", srcFullPath, destFullPath);
     if (AndroidStorage::MoveAndRenameFile(srcFullPath, destFullPath))
         return true;
 #else

@@ -3,8 +3,11 @@
 // Refer to the license.txt file included.
 
 #ifdef ANDROID
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
 #include "common/android_storage.h"
 #include "common/file_util.h"
+#include "common/logging/log.h"
 
 namespace AndroidStorage {
 JNIEnv* GetEnvForThread() {
@@ -186,16 +189,43 @@ bool MoveFile(const std::string& filename, const std::string& source_dir_path,
 }
 
 bool MoveAndRenameFile(const std::string& src_full_path, const std::string& dest_full_path) {
+    // TODO: If only a move or only a rename is required, just call the respective function here.
     const auto src_filename = std::string(FileUtil::GetFilename(src_full_path));
     const auto src_parent_path = std::string(FileUtil::GetParentPath(src_full_path));
     const auto dest_filename = std::string(FileUtil::GetFilename(dest_full_path));
     const auto dest_parent_path = std::string(FileUtil::GetParentPath(dest_full_path));
+    bool result;
 
-    bool result = AndroidStorage::MoveFile(src_filename, src_parent_path, dest_parent_path);
-    if (result == false) {
-        return false;
+    const std::string tmp_path = "/tmp";
+    AndroidStorage::CreateDir("/", "tmp");
+
+    // Step 1: Create directory named after UUID inside /tmp to house the moved file.
+    //         This prevents clashes if files with the same name are moved simultaneously.
+    const auto uuid = boost::uuids::to_string(boost::uuids::time_generator_v7()());
+    const auto allocated_tmp_path = tmp_path + "/" + uuid;
+    AndroidStorage::CreateDir(tmp_path, uuid);
+
+    // Step 2: Attempt to move to allocated temporary directory.
+    //         If this step fails, skip everything except the cleanup.
+    result = AndroidStorage::MoveFile(src_filename, src_parent_path, allocated_tmp_path);
+    if (result == true) {
+        // Step 3: Rename to desired file name.
+        AndroidStorage::RenameFile((allocated_tmp_path + "/" + src_filename), dest_filename);
+
+        // Step 4: If a file with the desired name in the destination exists, remove it.
+        AndroidStorage::DeleteDocument(dest_full_path);
+
+        // Step 5: Attempt to move file to desired location.
+        //         If this step fails, move the file back to where it came from.
+        result = AndroidStorage::MoveFile(dest_filename, allocated_tmp_path, dest_parent_path);
+        LOG_INFO(Common_Filesystem, "{} {} {}", dest_filename, allocated_tmp_path, dest_parent_path);
+        if (result == false) {
+            //AndroidStorage::MoveAndRenameFile((allocated_tmp_path + "/" + dest_filename), src_full_path);
+            LOG_ERROR(Common_Filesystem, "FAILED");
+        }
     }
-    result = AndroidStorage::RenameFile((dest_parent_path + src_filename), dest_filename);
+    // Step 6: Clean up the allocated temp directory.
+    // AndroidStorage::DeleteDocument(allocated_tmp_path);
     return result;
 }
 
