@@ -1,3 +1,5 @@
+#!/bin/bash -ex
+
 GITREV="`git show -s --format='%h'`" || true
 
 if [ "$GITHUB_REF_TYPE" = "tag" ]; then
