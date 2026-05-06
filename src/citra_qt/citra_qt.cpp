@@ -1914,7 +1914,45 @@ void GMainWindow::OnGameListOpenFolder(u64 data_id, GameListOpenTarget target) {
 
     LOG_INFO(Frontend, "Opening {} path for data_id={:016x}", open_target, data_id);
 
+#ifdef __unix__ // workaround to QDesktopServices::openUrl crashing with alternative frontends
+    auto open_folder_dbus_success = [&qpath]() -> bool {
+        if (!QDBusConnection::sessionBus().isConnected()) {
+            return false;
+        }
+
+        QDBusMessage open_folder_msg =
+            QDBusMessage::createMethodCall(QString::fromStdString("org.freedesktop.FileManager1"),
+                                           QString::fromStdString("/org/freedesktop/FileManager1"),
+                                           QString::fromStdString("org.freedesktop.FileManager1"),
+                                           QString::fromStdString("ShowFolders"));
+
+        if (open_folder_msg.type() == QDBusMessage::InvalidMessage) {
+            return false;
+        }
+
+        QList<QString> paths;
+        paths.append(QUrl::fromLocalFile(qpath).toString());
+        QList<QVariant> args;
+        QList<QVariant> options;
+        args.append(paths);
+        args.append(options);
+
+        open_folder_msg.setArguments(args);
+
+        QDBusMessage reply = QDBusConnection::sessionBus().call(open_folder_msg, QDBus::Block,
+                                                                5); // 5 seconds timeout
+        if (reply.type() == QDBusMessage::ErrorMessage) {
+            return false;
+        }
+        return true;
+    };
+
+    if (!open_folder_dbus_success()) {
+        QDesktopServices::openUrl(QUrl::fromLocalFile(qpath));
+    }
+#else
     QDesktopServices::openUrl(QUrl::fromLocalFile(qpath));
+#endif
 }
 
 void GMainWindow::OnGameListRemovePlayTimeData(u64 program_id) {
