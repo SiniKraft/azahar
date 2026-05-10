@@ -747,6 +747,8 @@ private:
      */
     void GetSaveDataSecureValue(Kernel::HLERequestContext& ctx);
 
+    void CheckAuthorityToAccessExtSaveData(Kernel::HLERequestContext& ctx);
+
     std::unordered_map<u32, ProgramInfo> program_info_map;
     std::string current_gamecard_path;
 

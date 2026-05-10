@@ -1707,6 +1707,14 @@ void FS_USER::GetSaveDataSecureValue(Kernel::HLERequestContext& ctx) {
         true);
 }
 
+void FS_USER::CheckAuthorityToAccessExtSaveData(Kernel::HLERequestContext& ctx) {
+    IPC::RequestParser rp(ctx);
+    IPC::RequestBuilder rb = rp.MakeBuilder(2, 0);
+    rb.Push(ResultSuccess);
+    rb.Push<bool>(true);
+    LOG_DEBUG(Service_FS, " (STUBBED)");
+}
+
 void FS_USER::RegisterProgramInfo(u32 process_id, u64 program_id, const std::string& filepath) {
     MediaType media_type;
     if (filepath == system.GetCartridge()) {
@@ -1854,7 +1862,7 @@ FS_USER::FS_USER(Core::System& system)
         {0x083A, &FS_USER::GetSpecialContentIndex, "GetSpecialContentIndex"},
         {0x083B, nullptr, "GetLegacyRomHeader"},
         {0x083C, nullptr, "GetLegacyBannerData"},
-        {0x083D, nullptr, "CheckAuthorityToAccessExtSaveData"},
+        {0x083D, &FS_USER::CheckAuthorityToAccessExtSaveData, "CheckAuthorityToAccessExtSaveData"},
         {0x083E, nullptr, "QueryTotalQuotaSize"},
         {0x083F, nullptr, "GetExtDataBlockSize"},
         {0x0840, nullptr, "AbnegateAccessRight"},
